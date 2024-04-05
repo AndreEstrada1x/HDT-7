@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * The main class of the program that performs language detection and translation.
+ * @author André Estrada
+ * @version 1.0
+ */
 public class Main {
     public static void main(String[] args) {
         BinaryTree<String, String> englishTree = new BinaryTree<>();

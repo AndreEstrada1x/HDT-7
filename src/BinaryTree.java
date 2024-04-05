@@ -1,3 +1,11 @@
+/**
+ * Represents a binary tree data structure.
+ * The tree is composed of nodes, where each node contains a key-value pair.
+ * The keys must be comparable.
+ *
+ * @param <K> the type of the keys in the tree (must implement Comparable)
+ * @param <V> the type of the values in the tree
+ */
 public class BinaryTree<K extends Comparable<K>, V> {
 
     private TreeNode<K, V> root;
