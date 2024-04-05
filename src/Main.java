@@ -7,12 +7,10 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // Crear árboles para cada idioma
         BinaryTree<String, String> englishTree = new BinaryTree<>();
         BinaryTree<String, String> spanishTree = new BinaryTree<>();
         BinaryTree<String, String> frenchTree = new BinaryTree<>();
 
-        // Leer el archivo diccionario.txt y construir los árboles
         try (BufferedReader br = new BufferedReader(new FileReader("resources/diccionario.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -21,7 +19,6 @@ public class Main {
                 String spanishWord = parts[1];
                 String frenchWord = parts[2];
 
-                // Insertar las asociaciones en los árboles correspondientes
                 englishTree.insert(englishWord, spanishWord + "," + frenchWord);
                 spanishTree.insert(spanishWord, englishWord + "," + frenchWord);
                 frenchTree.insert(frenchWord, englishWord + "," + spanishWord);
@@ -30,17 +27,11 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Leer el archivo texto.txt y detectar el idioma
         String detectedLanguage = detectLanguage(englishTree, spanishTree, frenchTree);
-
-        // Solicitar al usuario que seleccione el idioma de destino
         String targetLanguage = chooseTargetLanguage(detectedLanguage);
-
-        // Leer el archivo texto.txt y realizar las traducciones
         translateText("resources/texto.txt", detectedLanguage, targetLanguage, englishTree, spanishTree, frenchTree);
     }
 
-    // Método para detectar el idioma del texto
     private static String detectLanguage(BinaryTree<String, String> englishTree, BinaryTree<String, String> spanishTree,
             BinaryTree<String, String> frenchTree) {
         Map<String, Integer> wordCountMap = new HashMap<>();
@@ -66,7 +57,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Obtener el idioma con el mayor número de palabras coincidentes
         int maxCount = -1;
         String detectedLanguage = null;
         for (Map.Entry<String, Integer> entry : wordCountMap.entrySet()) {
@@ -79,24 +69,30 @@ public class Main {
         return detectedLanguage;
     }
 
-    // Método para solicitar al usuario que seleccione el idioma de destino
     private static String chooseTargetLanguage(String detectedLanguage) {
         Scanner scanner = new Scanner(System.in);
-
+    
         System.out.println("El idioma detectado es: " + detectedLanguage);
-        System.out.println("Por favor, seleccione el idioma de destino (1 para español, 2 para francés): ");
+        System.out.println("Por favor, seleccione el idioma de destino (1 para español, 2 para francés, 3 para inglés): ");
         String input = scanner.nextLine();
-
-        while (!input.equals("1") && !input.equals("2")) {
-            System.out.println("¡Por favor, seleccione una opción válida (1 para español, 2 para francés)!");
+    
+        while (!input.equals("1") && !input.equals("2") && !input.equals("3")) {
+            System.out.println("¡Por favor, seleccione una opción válida (1 para español, 2 para francés, 3 para inglés)!");
             input = scanner.nextLine();
         }
-
-        return input.equals("1") ? "español" : "francés";
+    
+        switch (input) {
+            case "1":
+                return "español";
+            case "2":
+                return "francés";
+            case "3":
+                return "inglés";
+            default:
+                return ""; // En caso de que ocurra algún error
+        }
     }
 
-
-    // Método para traducir el texto al idioma seleccionado por el usuario
     private static void translateText(String filePath, String detectedLanguage, String targetLanguage,
             BinaryTree<String, String> englishTree, BinaryTree<String, String> spanishTree,
             BinaryTree<String, String> frenchTree) {
@@ -115,26 +111,39 @@ public class Main {
         }
     }
 
-    // Método para traducir una palabra al idioma seleccionado
-    private static String translateWord(String word, String targetLanguage, BinaryTree<String, String> englishTree,
+    public static String translateWord(String word, String targetLanguage, BinaryTree<String, String> englishTree,
         BinaryTree<String, String> spanishTree, BinaryTree<String, String> frenchTree) {
-        String translation = "*" + word + "*"; // Por defecto, si no se encuentra la traducción, se devuelve la palabra original
+        String translation = "*" + word + "*";
 
-        switch (targetLanguage) {
+        switch (targetLanguage.toLowerCase()) {
             case "español":
                 if (englishTree.search(word)) {
                     String[] translations = englishTree.get(word).split(",");
-                    translation = translations[0]; // Tomar la traducción al español
+                    translation = translations[0];
+                } else if (frenchTree.search(word)) {
+                    String[] translations = frenchTree.get(word).split(",");
+                    translation = translations[0];
                 }
                 break;
             case "francés":
                 if (englishTree.search(word)) {
                     String[] translations = englishTree.get(word).split(",");
-                    translation = translations[1]; // Tomar la traducción al francés
+                    translation = translations[1];
+                } else if (spanishTree.search(word)) {
+                    String[] translations = spanishTree.get(word).split(",");
+                    translation = translations[1];
+                }
+                break;
+            case "inglés":
+                if (spanishTree.search(word)) {
+                    String[] translations = spanishTree.get(word).split(",");
+                    translation = translations[0];
+                } else if (frenchTree.search(word)) {
+                    String[] translations = frenchTree.get(word).split(",");
+                    translation = translations[0];
                 }
                 break;
             default:
-                // No hacer nada, mantener la palabra original como traducción
                 break;
         }
 
